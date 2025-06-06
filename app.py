@@ -7,7 +7,7 @@ import logging
 from flask import Flask, request
 
 # Configuration
-TOKEN = os.getenv('TOKEN', 'YOUR_TELEGRAM_BOT_TOKEN')
+TOKEN = os.getenv('TOKEN', '7454733028:AAEEGmZe1-wd2Y8DfriKwMe7px9mSP3vS_I')
 PORT = int(os.getenv('PORT', 10000))
 
 # Flask app
@@ -81,6 +81,6 @@ if __name__ == '__main__':
         listen="0.0.0.0",
         port=PORT,
         url_path=TOKEN,
-        webhook_url=f"https://yourdomain.com/{TOKEN}"
+        webhook_url=f"https://spbot-idtu.onrender.com/{TOKEN}"
     )
     updater.idle()
