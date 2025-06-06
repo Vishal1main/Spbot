@@ -1,24 +1,18 @@
-# Base image
+# Use a lightweight official Python image
 FROM python:3.9-slim
 
-# Set working directory
+# Set working directory inside the container
 WORKDIR /app
 
-# Copy requirements first to leverage Docker cache
+# Copy requirements and install dependencies
 COPY requirements.txt .
-
-# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application
+# Copy the full application code
 COPY . .
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:10000/ || exit 1
-
-# Expose port
+# Expose the port (Render uses $PORT env variable)
 EXPOSE 10000
 
-# Run the application
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:10000", "--workers", "4"]
+# Run the app using gunicorn
+CMD ["gunicorn", "main:app", "--bind", "0.0.0.0:10000"]
