@@ -1,13 +1,13 @@
 import os
 import requests
 from bs4 import BeautifulSoup
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram import Update, Bot
+from telegram.ext import Dispatcher, CommandHandler, MessageHandler, Filters, CallbackContext
 import logging
 from flask import Flask, request
 
 # Configuration
-TOKEN = os.getenv('TOKEN', '7454733028:AAEEGmZe1-wd2Y8DfriKwMe7px9mSP3vS_I')
+TOKEN = "7454733028:AAEEGmZe1-wd2Y8DfriKwMe7px9mSP3vS_I"
 PORT = int(os.getenv('PORT', 10000))
 
 # Flask app
@@ -19,18 +19,25 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Initialize bot and dispatcher
+bot = Bot(token=TOKEN)
+dispatcher = Dispatcher(bot=bot, update_queue=None, workers=4, use_context=True)
+
 @app.route('/')
 def home():
-    return "Movie Download Link Bot is running!", 200
+    return "🎬 Movie Download Link Bot is Running!", 200
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    update = Update.de_json(request.get_json(force=True), updater.bot)
-    dispatcher.process_update(update)
+    try:
+        update = Update.de_json(request.get_json(force=True), bot)
+        dispatcher.process_update(update)
+    except Exception as e:
+        logger.error(f"Webhook error: {e}")
     return 'ok', 200
 
 def start(update: Update, context: CallbackContext) -> None:
-    update.message.reply_text('🎬 Send me a movie page URL to extract download links')
+    update.message.reply_text('🎬 Send me a movie page URL to extract download links.')
 
 def extract_links(url: str) -> list:
     headers = {'User-Agent': 'Mozilla/5.0'}
@@ -52,35 +59,30 @@ def extract_links(url: str) -> list:
 def handle_message(update: Update, context: CallbackContext) -> None:
     url = update.message.text.strip()
     if not url.startswith(('http://', 'https://')):
-        update.message.reply_text("⚠️ Please send a valid URL")
+        update.message.reply_text("⚠️ Please send a valid URL.")
         return
-    
+
     links = extract_links(url)
     if not links:
-        update.message.reply_text("❌ No links found")
+        update.message.reply_text("❌ No links found.")
         return
-    
+
     for item in links[:5]:  # Limit to 5 links
         update.message.reply_text(f"🔗 {item['url']}")
 
-def error_handler(update: Update, context: CallbackContext) -> None:
+def error_handler(update: object, context: CallbackContext) -> None:
     logger.error(f"Update {update} caused error {context.error}")
-
-# Initialize bot
-updater = Updater(TOKEN)
-dispatcher = updater.dispatcher
 
 # Register handlers
 dispatcher.add_handler(CommandHandler("start", start))
 dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
 dispatcher.add_error_handler(error_handler)
 
-if __name__ == '__main__':
-    # For production with webhook
-    updater.start_webhook(
-        listen="0.0.0.0",
-        port=PORT,
-        url_path=TOKEN,
-        webhook_url=f"https://spbot-idtu.onrender.com/{TOKEN}"
-    )
-    updater.idle()
+# Set the webhook on first request (only once)
+@app.before_first_request
+def set_webhook():
+    webhook_url = "https://spbot-idtu.onrender.com/webhook"
+    if bot.set_webhook(url=webhook_url):
+        logger.info(f"✅ Webhook set to {webhook_url}")
+    else:
+        logger.error("❌ Failed to set webhook")
