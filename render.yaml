@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: movie-dl-bot
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:10000 --workers 4
+    envVars:
+      - key: TOKEN
+        value: YOUR_TELEGRAM_BOT_TOKEN
+      - key: PORT
+        value: 10000
+    healthCheckPath: /
