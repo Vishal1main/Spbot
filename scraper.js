@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 
 // Telegram Configuration
 const TELEGRAM_TOKEN = '7454733028:AAEEGmZe1-wd2Y8DfriKwMe7px9mSP3vS_I';
-const CHANNEL_ID = '2178270630'; // Your numeric channel ID
+const CHANNEL_ID = '-1002178270630'; // Your numeric channel ID
 const bot = new TelegramBot(TELEGRAM_TOKEN);
 
 // RSS Feeds to Monitor
@@ -31,7 +31,7 @@ const postTracker = {
   }
 };
 
-const CHECK_INTERVAL = 15 * 60 * 1000; // 15 minutes
+const CHECK_INTERVAL = 60 * 1000; // 1 minute (60,000 milliseconds) // 15 minutes
 
 console.log(`
 =====================================
