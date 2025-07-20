@@ -1,0 +1,19 @@
+{
+  "name": "filmyzilla-telegram-scraper",
+  "version": "1.0.0",
+  "description": "Telegram bot to scrape download links from Filmyzilla",
+  "main": "scraper.js",
+  "scripts": {
+    "start": "node scraper.js",
+    "dev": "nodemon scraper.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.7",
+    "cheerio": "^1.0.0-rc.12",
+    "express": "^4.18.2",
+    "node-telegram-bot-api": "^0.61.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
